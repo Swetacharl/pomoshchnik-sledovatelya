@@ -47,7 +47,6 @@ export default function RegisterScreen() {
         { 
           text: 'OK', 
           onPress: () => {
-            // Исправлено: используем replace с правильным путём к вкладкам
             router.replace('/(tabs)/home');
           } 
         }
@@ -72,14 +71,16 @@ export default function RegisterScreen() {
       
       <TextInput 
         style={styles.input} 
-        placeholder="ФИО" 
+        placeholder="Введите ваше ФИО" 
+        placeholderTextColor="#95a5a6"
         value={fullName} 
         onChangeText={setFullName} 
       />
       
       <TextInput 
         style={styles.input} 
-        placeholder="Email" 
+        placeholder="Введите ваш email" 
+        placeholderTextColor="#95a5a6"
         value={email} 
         onChangeText={setEmail} 
         autoCapitalize="none" 
@@ -88,7 +89,8 @@ export default function RegisterScreen() {
       
       <TextInput 
         style={styles.input} 
-        placeholder="Пароль" 
+        placeholder="Введите пароль (минимум 6 символов)" 
+        placeholderTextColor="#95a5a6"
         value={password} 
         onChangeText={setPassword} 
         secureTextEntry 
@@ -97,6 +99,7 @@ export default function RegisterScreen() {
       <TextInput 
         style={styles.input} 
         placeholder="Повторите пароль" 
+        placeholderTextColor="#95a5a6"
         value={confirmPassword} 
         onChangeText={setConfirmPassword} 
         secureTextEntry 
@@ -116,7 +119,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, justifyContent: 'center', backgroundColor: '#f0f4f8' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#2c3e50', textAlign: 'center', marginBottom: 20 },
-  input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: '#bdc3c7' },
+  input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: '#bdc3c7', fontSize: 16 },
   button: { backgroundColor: '#27ae60', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 5 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { color: '#3498db', textAlign: 'center', marginTop: 20, fontSize: 14 }
