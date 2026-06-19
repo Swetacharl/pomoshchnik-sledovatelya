@@ -3,15 +3,21 @@ import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { auth } from '../src/config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { initLegalDB } from '../src/initLegalDB';
 
 export default function RootLayout() {
   const [user, setUser] = useState(undefined);
   const [initialRoute, setInitialRoute] = useState(null);
 
+  // 1. Инициализация базы законов при первом запуске
+  useEffect(() => {
+    initLegalDB();
+  }, []);
+
+  // 2. Проверка авторизации пользователя
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u ?? null);
-      // После входа запоминаем, что нужно показать вкладки
       if (u) setInitialRoute('/(tabs)/home');
     });
     return unsubscribe;
@@ -20,7 +26,7 @@ export default function RootLayout() {
   // Пока проверяем авторизацию — показываем пустой экран
   if (user === undefined) return null;
 
-  // ❌ Не авторизован: показываем экраны входа
+  // Не авторизован: показываем экраны входа
   if (!user) {
     return (
       <Stack screenOptions={{ headerShown: false }}>
@@ -31,7 +37,7 @@ export default function RootLayout() {
     );
   }
 
-  // ✅ Авторизован: показываем главное меню
+  // Авторизован: показываем главное меню
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
