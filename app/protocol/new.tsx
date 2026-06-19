@@ -1,4 +1,4 @@
-// app/protocol/new.tsx (полный код с изменениями)
+// app/protocol/new.tsx (полный код с улучшенными подсказками)
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, StyleSheet, Share } from 'react-native';
 import { router } from 'expo-router';
@@ -16,13 +16,13 @@ export default function NewProtocolScreen() {
   const [dateTime, setDateTime] = useState(new Date().toLocaleString('ru-RU'));
   const [address, setAddress] = useState('');
   
-  // 2. Процедурные (добавлены два новых поля)
+  // 2. Процедурные
   const [helpProvided, setHelpProvided] = useState('');
   const [isGuarded, setIsGuarded] = useState('');
   const [strangersRemoved, setStrangersRemoved] = useState('');
   const [witnessesWarned, setWitnessesWarned] = useState('');
-  const [witnessesInProcedural, setWitnessesInProcedural] = useState(''); // Новое: понятые в процедурных
-  const [eyewitnessesInProcedural, setEyewitnessesInProcedural] = useState(''); // Новое: очевидцы в процедурных
+  const [witnessesInProcedural, setWitnessesInProcedural] = useState('');
+  const [eyewitnessesInProcedural, setEyewitnessesInProcedural] = useState('');
 
   // 3. Очевидцы + Показания
   const [eyewitnessInterview, setEyewitnessInterview] = useState('');
@@ -194,13 +194,12 @@ export default function NewProtocolScreen() {
       <ScrollView style={styles.form} contentContainerStyle={{paddingBottom: 40}}>
         
         <Section title="📞 Общие сведения">
-          <Field label="Причина вызова" value={reasonForCall} onChange={setReasonForCall} placeholder="Поступило сообщение о..." />
-          <Field label="Кто вызвал" value={callerName} onChange={setCallerName} placeholder="ФИО заявителя" />
+          <Field label="Причина вызова" value={reasonForCall} onChange={setReasonForCall} placeholder="Опишите причину: поступило сообщение о краже из квартиры, обнаружении тела и т.д." />
+          <Field label="Кто вызвал" value={callerName} onChange={setCallerName} placeholder="ФИО заявителя полностью и контактный телефон" />
           <Field label="Дата и время" value={dateTime} onChange={setDateTime} />
-          <Field label="Адрес" value={address} onChange={setAddress} multiline placeholder="Город, улица..." />
+          <Field label="Адрес" value={address} onChange={setAddress} multiline placeholder="Полный адрес: г. Москва, ул. Ленина, д. 1, кв. 1, подъезд 2, этаж 3" />
         </Section>
 
-        {/* ⚖️ Процедурные вопросы (ОБНОВЛЕНО) */}
         <Section title="⚖️ Процедурные вопросы">
           <Toggle label="Оказана помощь?" value={helpProvided} onChange={setHelpProvided} />
           <Toggle label="Место охраняется?" value={isGuarded} onChange={setIsGuarded} />
@@ -216,13 +215,13 @@ export default function NewProtocolScreen() {
             <>
               {eyewitnessesList.map(w => (
                 <View key={w.id} style={styles.card}>
-                  <TextInput style={styles.miniInput} placeholder="ФИО очевидца" value={w.fio} onChangeText={t => updateEyewitness(w.id, 'fio', t)} />
-                  <TextInput style={styles.miniInput} placeholder="Адрес" value={w.address} onChangeText={t => updateEyewitness(w.id, 'address', t)} />
+                  <TextInput style={styles.miniInput} placeholder="ФИО очевидца полностью (Иванов Иван Иванович)" placeholderTextColor="#4a5568" value={w.fio} onChangeText={t => updateEyewitness(w.id, 'fio', t)} />
+                  <TextInput style={styles.miniInput} placeholder="Адрес проживания (г. Москва, ул. Пушкина, д. 5, кв. 10)" placeholderTextColor="#4a5568" value={w.address} onChangeText={t => updateEyewitness(w.id, 'address', t)} />
                   <TouchableOpacity onPress={() => removeEyewitness(w.id)}><Text style={styles.delText}>❌</Text></TouchableOpacity>
                 </View>
               ))}
               <TouchableOpacity style={styles.addBtn} onPress={addEyewitness}><Text style={styles.addText}>+ Добавить очевидца</Text></TouchableOpacity>
-              <Field label="Что рассказали очевидцы?" value={eyewitnessTestimony} onChange={setEyewitnessTestimony} multiline placeholder="Текст показаний..." />
+              <Field label="Что рассказали очевидцы?" value={eyewitnessTestimony} onChange={setEyewitnessTestimony} multiline placeholder="Подробно опишите показания: что видели, слышали, когда это произошло, кто участвовал..." />
             </>
           )}
         </Section>
@@ -233,8 +232,8 @@ export default function NewProtocolScreen() {
             <>
               {witnessesList.map(w => (
                 <View key={w.id} style={styles.card}>
-                  <TextInput style={styles.miniInput} placeholder="ФИО понятого" value={w.fio} onChangeText={t => updateWitness(w.id, 'fio', t)} />
-                  <TextInput style={styles.miniInput} placeholder="Адрес" value={w.address} onChangeText={t => updateWitness(w.id, 'address', t)} />
+                  <TextInput style={styles.miniInput} placeholder="ФИО понятого полностью (Петров Пётр Петрович)" placeholderTextColor="#4a5568" value={w.fio} onChangeText={t => updateWitness(w.id, 'fio', t)} />
+                  <TextInput style={styles.miniInput} placeholder="Адрес проживания (г. Москва, ул. Гагарина, д. 10, кв. 25)" placeholderTextColor="#4a5568" value={w.address} onChangeText={t => updateWitness(w.id, 'address', t)} />
                   <TouchableOpacity onPress={() => removeWitness(w.id)}><Text style={styles.delText}>❌</Text></TouchableOpacity>
                 </View>
               ))}
@@ -249,8 +248,8 @@ export default function NewProtocolScreen() {
             <>
               {specialistsList.map(s => (
                 <View key={s.id} style={styles.card}>
-                  <TextInput style={styles.miniInput} placeholder="ФИО специалиста" value={s.name} onChangeText={t => updateSpecialist(s.id, 'name', t)} />
-                  <TextInput style={styles.miniInput} placeholder="Роль" value={s.role} onChangeText={t => updateSpecialist(s.id, 'role', t)} />
+                  <TextInput style={styles.miniInput} placeholder="ФИО специалиста (Сидоров С.С., эксперт-криминалист)" placeholderTextColor="#4a5568" value={s.name} onChangeText={t => updateSpecialist(s.id, 'name', t)} />
+                  <TextInput style={styles.miniInput} placeholder="Роль: дактилоскопист, трасолог, фотограф и т.д." placeholderTextColor="#4a5568" value={s.role} onChangeText={t => updateSpecialist(s.id, 'role', t)} />
                   <TouchableOpacity onPress={() => removeSpecialist(s.id)}><Text style={styles.delText}>❌</Text></TouchableOpacity>
                 </View>
               ))}
@@ -260,16 +259,16 @@ export default function NewProtocolScreen() {
         </Section>
 
         <Section title="📹 Технические средства">
-          <Field label="Какие использованы?" value={technicalMeans} onChange={setTechnicalMeans} multiline placeholder="Фотоаппарат, дрон..." />
+          <Field label="Какие использованы?" value={technicalMeans} onChange={setTechnicalMeans} multiline placeholder="Перечислите: фотоаппарат Canon EOS 5D, дрон DJI Mavic, сканер отпечатков пальцев и т.д." />
         </Section>
 
         <Section title="🎥 Видеосъемка">
           <Toggle label="Велась съемка?" value={videoRecording} onChange={setVideoRecording} />
           {videoRecording === 'Да' && (
             <View style={{marginTop: 10}}>
-              <Field label="Время начала" value={videoStartTime} onChange={setVideoStartTime} placeholder="Например: 14:30" />
-              <Field label="Время окончания" value={videoEndTime} onChange={setVideoEndTime} placeholder="Например: 15:45" />
-              <Field label="Перерыв (время)" value={videoPauseTime} onChange={setVideoPauseTime} placeholder="Если был" />
+              <Field label="Время начала" value={videoStartTime} onChange={setVideoStartTime} placeholder="Например: 14:30 (обязательно укажите час и минуты)" />
+              <Field label="Время окончания" value={videoEndTime} onChange={setVideoEndTime} placeholder="Например: 15:45 (обязательно укажите час и минуты)" />
+              <Field label="Перерыв (время)" value={videoPauseTime} onChange={setVideoPauseTime} placeholder="Если был перерыв, укажите время: 15:00-15:10" />
             </View>
           )}
         </Section>
@@ -286,11 +285,11 @@ export default function NewProtocolScreen() {
         </Section>
 
         <Section title="📦 Изъято">
-          <Field label="Что изъято?" value={seizedItems} onChange={setSeizedItems} multiline placeholder="Перечень предметов..." />
+          <Field label="Что изъято?" value={seizedItems} onChange={setSeizedItems} multiline placeholder="Перечислите все изъятые предметы: лом металлический длиной 50 см, отмычка, следы обуви размер 42 и т.д." />
         </Section>
 
         <Section title="📎 Приложения к протоколу">
-          <Field label="Описание приложений" value={attachmentsText} onChange={setAttachmentsText} multiline placeholder="Фототаблица, схема..." />
+          <Field label="Описание приложений" value={attachmentsText} onChange={setAttachmentsText} multiline placeholder="Фототаблица на 10 листах, схема места происшествия, план помещения и т.д." />
           <View style={{marginTop: 10}}>
             <Text style={styles.label}>Прикрепленные файлы:</Text>
             {filesList.map(f => <Text key={f.id} style={styles.fileText}>📎 {f.name}</Text>)}
@@ -320,7 +319,7 @@ export default function NewProtocolScreen() {
 
 // --- Вспомогательные компоненты ---
 function Section({ title, children }) { return (<View style={styles.section}><Text style={styles.sectionTitle}>{title}</Text>{children}</View>); }
-function Field({ label, value, onChange, multiline, placeholder }) { return (<View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput style={[styles.input, multiline && styles.textArea]} value={value} onChangeText={onChange} multiline={multiline} placeholder={placeholder} placeholderTextColor="#95a5a6" /></View>); }
+function Field({ label, value, onChange, multiline, placeholder }) { return (<View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput style={[styles.input, multiline && styles.textArea]} value={value} onChangeText={onChange} multiline={multiline} placeholder={placeholder} placeholderTextColor="#4a5568" /></View>); }
 function Toggle({ label, value, onChange }) { return (<View style={styles.toggleRow}><Text style={styles.toggleLabel}>{label}</Text><View style={styles.toggleBtns}><TouchableOpacity style={[styles.tBtn, value === 'Да' && styles.tBtnActive]} onPress={() => onChange('Да')}><Text style={[styles.tText, value === 'Да' && styles.tTextActive]}>Да</Text></TouchableOpacity><TouchableOpacity style={[styles.tBtn, value === 'Нет' && styles.tBtnActive]} onPress={() => onChange('Нет')}><Text style={[styles.tText, value === 'Нет' && styles.tTextActive]}>Нет</Text></TouchableOpacity></View></View>); }
 
 const styles = StyleSheet.create({
