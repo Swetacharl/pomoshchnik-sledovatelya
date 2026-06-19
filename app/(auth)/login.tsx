@@ -20,7 +20,6 @@ export default function LoginScreen() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       
-      // ✅ Успех: принудительно переходим на главное меню вкладок
       Alert.alert('Успех', 'Вы вошли в систему!', [
         { 
           text: 'OK', 
@@ -48,7 +47,8 @@ export default function LoginScreen() {
       
       <TextInput 
         style={styles.input} 
-        placeholder="Email" 
+        placeholder="Введите ваш email" 
+        placeholderTextColor="#95a5a6"
         value={email} 
         onChangeText={setEmail} 
         autoCapitalize="none" 
@@ -57,7 +57,8 @@ export default function LoginScreen() {
       
       <TextInput 
         style={styles.input} 
-        placeholder="Пароль" 
+        placeholder="Введите пароль" 
+        placeholderTextColor="#95a5a6"
         value={password} 
         onChangeText={setPassword} 
         secureTextEntry 
@@ -77,7 +78,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, justifyContent: 'center', backgroundColor: '#f0f4f8' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#2c3e50', textAlign: 'center', marginBottom: 30 },
-  input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#bdc3c7' },
+  input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#bdc3c7', fontSize: 16 },
   button: { backgroundColor: '#2980b9', padding: 15, borderRadius: 10, alignItems: 'center' },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { color: '#3498db', textAlign: 'center', marginTop: 20, fontSize: 14 }
