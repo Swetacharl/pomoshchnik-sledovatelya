@@ -1,5 +1,5 @@
 // src/exportProtocol.js
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, ImageRun, PageBreak } from 'docx';
+import { Document, Packer, Paragraph, TextRun, AlignmentType, ImageRun, PageBreak } from 'docx';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
@@ -172,7 +172,6 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     new Paragraph({ children: [new TextRun({ text: ' ' })] }),
   );
 
-  // Подписи участников
   children.push(new Paragraph({ children: [new TextRun({ text: 'Подписи участников:', bold: true, underline: {} })] }));
   
   if (protocolData.witnessesList) {
@@ -239,10 +238,11 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     sections: [{ children }],
   });
 
-  const blob = await Packer.toBlob(doc);
+  // ✅ ИСПРАВЛЕНИЕ: Используем toBase64String вместо toBlob
+  const base64String = await Packer.toBase64String(doc);
   const fileUri = `${FileSystem.documentDirectory}protocol_${protocolData.protocolNumber}.docx`;
   
-  await FileSystem.writeAsStringAsync(fileUri, await blobToBase64(blob), {
+  await FileSystem.writeAsStringAsync(fileUri, base64String, {
     encoding: FileSystem.EncodingType.Base64,
   });
 
@@ -252,13 +252,4 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
   });
 
   return fileUri;
-}
-
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 }
