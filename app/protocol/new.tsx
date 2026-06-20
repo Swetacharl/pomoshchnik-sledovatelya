@@ -147,36 +147,34 @@ export default function NewProtocolScreen() {
   };
 
   // Экспорт
-  const handleExport = async () => {
-    let text = `📋 ПРОТОКОЛ ОСМОТРА — Помощник Следователя\n🔢 ${generateNumber()}\n📅 ${dateTime}\n📍 ${address}\n\n`;
-    text += `📞 Причина: ${reasonForCall}\n👤 Вызвал: ${callerName || '—'}\n\n`;
-    text += `⚖️ Процедурные:\n• Помощь: ${helpProvided} | Охрана: ${isGuarded}\n• Посторонние: ${strangersRemoved}\n• Предупреждение: ${witnessesWarned}\n• Понятые: ${witnessesInProcedural} | Очевидцы: ${eyewitnessesInProcedural}\n\n`;
-    
-    if (eyewitnessInterview === 'Да' || eyewitnessesInProcedural === 'Да') {
-      text += `👁️ Опрос очевидцев:\n` +
-        eyewitnessesList.map((w,i) => `${i+1}. ${w.fio || '—'} (${w.address || '—'})`).join('\n') + '\n';
-      text += `💬 Показания:\n${eyewitnessTestimony || '—'}\n\n`;
-    }
+   import { exportProtocolToWord } from '../../src/exportProtocol';
 
-    if (witnessesPresent === 'Да' || witnessesInProcedural === 'Да') {
-      text += `👥 Понятые:\n` + witnessesList.map((w,i) => `${i+1}. ${w.fio} (${w.address})`).join('\n') + '\n\n';
-    }
-
-    if (videoRecording === 'Да') {
-      text += `🎥 Видеосъемка:\n• Начало: ${videoStartTime}\n• Окончание: ${videoEndTime || '—'}\n• Перерыв: ${videoPauseTime || 'Нет'}\n\n`;
-    }
-
-    text += `🔍 Следы: ${checklist.filter(c => c.checked).map(c => c.name).join(', ') || 'Не обнаружены'}\n`;
-    text += `📦 Изъято: ${seizedItems || '—'}\n`;
-    text += `📎 Файлы: ${filesList.length ? filesList.map(f => f.name).join(', ') : '—'}\n\n`;
-    text += `📝 Сформировано в Помощник Следователя`;
-
-    try {
-      await Share.share({ message: text, title: 'Протокол осмотра' });
-    } catch (e) {
-      Alert.alert('Ошибка', 'Не удалось поделиться');
-    }
-  };
+const handleExport = async () => {
+  try {
+    await exportProtocolToWord(
+      {
+        protocolNumber: generateNumber(),
+        dateTime,
+        address,
+        reasonForCall,
+        callerName,
+        witnessesList,
+        eyewitnessesList,
+        specialistsList,
+        checklist,
+        seizedItems,
+        technicalMeans,
+        videoRecording,
+        videoStartTime,
+        videoEndTime,
+      },
+      [], // подписи
+      filesList.filter(f => f.type.startsWith('image')) // только фото
+    );
+  } catch (e) {
+    Alert.alert('Ошибка', 'Не удалось экспортировать: ' + e.message);
+  }
+};
 
   // Эффект: если в процедурных нажали "Да" → открываем соответствующий раздел
   React.useEffect(() => {
