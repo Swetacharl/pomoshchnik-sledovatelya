@@ -40,6 +40,10 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity style={styles.menuBtn} onPress={() => router.push('/expert-report')}>
+         <Text style={styles.menuText}>📝 Заключение эксперта</Text>
+         </TouchableOpacity>
+      
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>🚪 Выйти из системы</Text>
       </TouchableOpacity>
