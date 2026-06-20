@@ -6,6 +6,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../src/config/firebase';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
+import { exportProtocolToWord } from '../../src/exportProtocol';
 
 export default function NewProtocolScreen() {
   const [loading, setLoading] = useState(false);
@@ -147,8 +148,6 @@ export default function NewProtocolScreen() {
   };
 
   // Экспорт
-   import { exportProtocolToWord } from '../../src/exportProtocol';
-
 const handleExport = async () => {
   try {
     await exportProtocolToWord(
