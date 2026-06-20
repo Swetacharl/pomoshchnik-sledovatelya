@@ -6,22 +6,14 @@
   "build": {
     "preview": {
       "distribution": "internal",
-      "node": "18.18.0",
       "android": {
         "buildType": "apk"
-      },
-      "install": {
-        "run": "npm install"
       }
     },
     "production": {
       "distribution": "store",
-      "node": "18.18.0",
       "android": {
         "buildType": "apk"
-      },
-      "install": {
-        "run": "npm install"
       }
     }
   },
