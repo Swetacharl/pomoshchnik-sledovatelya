@@ -13,7 +13,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>🔍 Помощник Следователя </Text>
+        <Text style={styles.title}>🔍 Помощник Следователя</Text>
         <Text style={styles.subtitle}>Мобильный помощник следователя</Text>
       </View>
 
@@ -33,17 +33,12 @@ export default function HomeScreen() {
           <Text style={styles.cardText}>Справочник кодексов</Text>
         </TouchableOpacity>
 
-        {/* ✅ НОВАЯ КАРТОЧКА */}
-        <TouchableOpacity style={styles.card} onPress={() => router.push('/(tabs)/expert')}>
-          <Text style={styles.cardIcon}>🔬</Text>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/expert-report')}>
+          <Text style={styles.cardIcon}>📝</Text>
           <Text style={styles.cardText}>Заключение эксперта</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.menuBtn} onPress={() => router.push('/expert-report')}>
-         <Text style={styles.menuText}>📝 Заключение эксперта</Text>
-         </TouchableOpacity>
-      
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>🚪 Выйти из системы</Text>
       </TouchableOpacity>
