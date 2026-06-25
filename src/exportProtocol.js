@@ -243,7 +243,7 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
   const fileUri = `${FileSystem.documentDirectory}protocol_${protocolData.protocolNumber}.docx`;
   
   await FileSystem.writeAsStringAsync(fileUri, base64String, {
-    encoding: FileSystem.EncodingType.Base64,
+    encoding: 'base64',
   });
 
   await Sharing.shareAsync(fileUri, {
