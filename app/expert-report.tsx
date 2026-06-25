@@ -76,7 +76,7 @@ const handleExport = async () => {
   const fileUri = `${FileSystem.documentDirectory}expert_report_${reportData.number}.docx`;
   
   await FileSystem.writeAsStringAsync(fileUri, base64String, {
-    encoding: FileSystem.EncodingType.Base64,
+    encoding: 'base64',
   });
   
   await Sharing.shareAsync(fileUri, {
