@@ -1,5 +1,7 @@
+// app/(tabs)/archive.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Share } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { router } from 'expo-router';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../../src/config/firebase';
 
@@ -11,7 +13,6 @@ export default function ArchiveScreen() {
 
   // 1. Загрузка протоколов в реальном времени
   useEffect(() => {
-    // ✅ ПРОВЕРКА: если пользователь не вошёл — не загружаем данные
     if (!auth.currentUser) {
       setLoading(false);
       return;
@@ -24,7 +25,6 @@ export default function ArchiveScreen() {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // Сортируем на клиенте
       docs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
       setProtocols(docs);
       setFilteredProtocols(docs);
@@ -49,36 +49,11 @@ export default function ArchiveScreen() {
     }
   }, [searchQuery, protocols]);
 
-  // 3. Экспорт протокола
-  const handleExport = async (protocol) => {
-    const traces = protocol.checklist?.filter(c => c.checked).map(c => c.name).join(', ') || 'Не обнаружены';
-    const witnesses = protocol.witnessesList?.map((w, i) => `${i + 1}. ${w.fio || '—'} (${w.address || '—'})`).join('\n') || '—';
-    const files = protocol.filesList?.map(f => f.name).join(', ') || '—';
-
-    const text = `📋 ПРОТОКОЛ ${protocol.protocolNumber}\n📅 ${protocol.dateTime}\n📍 ${protocol.address}\n\n` +
-      ` Причина: ${protocol.reasonForCall || '—'}\n Вызвал: ${protocol.callerName || '—'}\n\n` +
-      `⚖️ Процедурные:\n• Помощь: ${protocol.helpProvided}\n• Охрана: ${protocol.isGuarded}\n• Посторонние: ${protocol.strangersRemoved}\n• Предупреждение: ${protocol.witnessesWarned}\n\n` +
-      `👁️ Очевидцы: ${protocol.eyewitnessInterview === 'Да' ? 'Проведен' : 'Нет'}\n` +
-      (protocol.eyewitnessInterview === 'Да' ? `💬 Показания:\n${protocol.eyewitnessTestimony || '—'}\n\n` : '') +
-      `👥 Понятые: ${protocol.witnessesPresent}\n${witnesses}\n\n` +
-      `🎥 Видео: ${protocol.videoRecording === 'Да' ? `Начало ${protocol.videoStartTime} | Окончание ${protocol.videoEndTime || '—'} | Перерыв: ${protocol.videoPauseTime || 'Нет'}` : 'Не велась'}\n\n` +
-      `🔍 Следы: ${traces}\n📦 Изъято: ${protocol.seizedItems || '—'}\n📎 Файлы: ${files}\n\n📝 Сформировано в Помощник Следователя`;
-
-    try {
-      await Share.share({ message: text, title: protocol.protocolNumber });
-    } catch (e) {
-      Alert.alert('Ошибка', 'Не удалось поделиться протоколом');
-    }
-  };
-
-  // 4. Отображение карточки протокола
+  // 3. Отображение карточки протокола
   const renderItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.card} 
-      onPress={() => Alert.alert(item.protocolNumber, `${item.dateTime}\n${item.address}`, [
-        { text: 'Экспорт', onPress: () => handleExport(item) },
-        { text: 'Закрыть', style: 'cancel' }
-      ])}
+      onPress={() => router.push(`/archive/view?protocolId=${item.id}`)}
     >
       <View style={styles.cardHeader}>
         <Text style={styles.number}>{item.protocolNumber}</Text>
@@ -86,8 +61,10 @@ export default function ArchiveScreen() {
       </View>
       <Text style={styles.address} numberOfLines={2}>{item.address}</Text>
       <View style={styles.cardFooter}>
-        <Text style={styles.traces}>Следы: {item.checklist?.filter(c => c.checked).length || 0}</Text>
-        <Text style={styles.exportHint}>👆 Нажмите для экспорта</Text>
+        <Text style={styles.traces}>
+          Следы: {item.checklist?.filter(c => c.checked).length || 0}
+        </Text>
+        <Text style={styles.viewHint}>👆 Нажмите для просмотра</Text>
       </View>
     </TouchableOpacity>
   );
@@ -146,7 +123,7 @@ const styles = StyleSheet.create({
   address: { fontSize: 14, color: '#34495e', marginBottom: 8 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   traces: { fontSize: 13, color: '#27ae60', fontWeight: '600' },
-  exportHint: { fontSize: 12, color: '#95a5a6', fontStyle: 'italic' },
+  viewHint: { fontSize: 12, color: '#95a5a6', fontStyle: 'italic' },
   loadingText: { marginTop: 10, color: '#7f8c8d', fontSize: 14 },
   icon: { fontSize: 48, marginBottom: 10 },
   emptyText: { fontSize: 15, color: '#7f8c8d', textAlign: 'center', maxWidth: 250 }
