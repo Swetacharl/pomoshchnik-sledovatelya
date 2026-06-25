@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBw-oIUIU327OsJIVgtWCxjv-ibAJT4wqM",
   authDomain: "forensichelper.firebaseapp.com",
   databaseURL: "https://forensichelper-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "forensichelper",
+  projectId: "Forensichelper",
   storageBucket: "forensichelper.firebasestorage.app",
   messagingSenderId: "875206695758",
   appId: "1:875206695758:web:dc688de6e0bab2869adc1f"
