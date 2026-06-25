@@ -4,15 +4,14 @@ import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// 🔑 ВАШ КОНФИГ ИЗ FIREBASE CONSOLE (вставьте свои значения!)
 const firebaseConfig = {
- apiKey: "AIzaSyBw-oIUIU327OsJIVgtWCxjv-ibAJT4wqM",
-  authDomain: «forensichelper.firebaseapp.com»,
-  databaseURL: «https://forensichelper-default-rtdb.asia-southeast1.firebasedatabase.app»,
-  projectId: «судебный эксперт»,
-  storageBucket: «forensichelper.firebasestorage.app»,
- MessageagingSenderId: «875206695758»,
-  appId: "1:875206695758:web:dc688de6e0bab2869adc1f"}; InitializeFirebase const app = initializeApp(firebaseConfig
+  apiKey: "AIzaSyBw-oIUIU327OsJIVgtWCxjv-ibAJT4wqM",
+  authDomain: "forensichelper.firebaseapp.com",
+  databaseURL: "https://forensichelper-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "forensichelper",
+  storageBucket: "forensichelper.firebasestorage.app",
+  messagingSenderId: "875206695758",
+  appId: "1:875206695758:web:dc688de6e0bab2869adc1f"
 };
 
 // Инициализация Firebase
