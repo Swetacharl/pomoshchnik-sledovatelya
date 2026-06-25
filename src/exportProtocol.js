@@ -207,7 +207,7 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
       try {
         const photoUri = photos[i].uri;
         const base64 = await FileSystem.readAsStringAsync(photoUri, {
-          encoding: FileSystem.EncodingType.Base64,
+          encoding: 'base64',
         });
         
         children.push(
