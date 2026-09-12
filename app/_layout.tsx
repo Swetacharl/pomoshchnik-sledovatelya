@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { auth } from '../src/config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { initLegalDB } from '../src/initLegalDB';
+import { initSyncTable, syncPendingProtocols } from '../src/syncManager';
 
 export default function RootLayout() {
   const [user, setUser] = useState(undefined);
