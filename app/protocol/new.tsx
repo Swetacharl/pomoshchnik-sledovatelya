@@ -6,7 +6,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../src/config/firebase';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
-import { checkInternet, saveProtocolLocally } from '../../src/syncManager';
+import { checkInternet, saveProtocolLocally } from '../src/syncManager';
 
 export default function NewProtocolScreen() {
   const [loading, setLoading] = useState(false);
