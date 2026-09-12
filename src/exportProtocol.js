@@ -1,6 +1,6 @@
 // src/exportProtocol.js
 import { Document, Packer, Paragraph, TextRun, AlignmentType, ImageRun, PageBreak } from 'docx';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy'; // ← ВАЖНО: /legacy предотвращает ошибку сборки
 import * as Sharing from 'expo-sharing';
 
 export async function exportProtocolToWord(protocolData, signatures = [], photos = []) {
@@ -35,7 +35,7 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     new Paragraph({
       children: [
         new TextRun({ text: 'Следователь ', bold: true }),
-        new TextRun({ text: `(ФИО следователя) ` }),
+        new TextRun({ text: `${protocolData.officerName || '(ФИО должностного лица)'} ` }),
         new TextRun({ text: 'в соответствии со ст. 164, 176-177 УПК РФ произвёл осмотр места происшествия по адресу: ' }),
         new TextRun({ text: protocolData.address, bold: true, underline: {} }),
         new TextRun({ text: '.' }),
@@ -44,14 +44,14 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     new Paragraph({ children: [new TextRun({ text: ' ' })] }),
     new Paragraph({
       children: [
-        new TextRun({ text: 'Повод к осмотру: ', bold: true }),
-        new TextRun({ text: protocolData.reasonForCall || '___________' }),
+        new TextRun({ text: 'Квалификация преступления: ', bold: true }),
+        new TextRun({ text: protocolData.crimeArticle || '___________' }),
       ],
     }),
     new Paragraph({
       children: [
-        new TextRun({ text: 'Заявитель: ', bold: true }),
-        new TextRun({ text: protocolData.callerName || '___________' }),
+        new TextRun({ text: 'Обратившийся за помощью: ', bold: true }),
+        new TextRun({ text: `${protocolData.callerName || '—'} (тел. ${protocolData.callerPhone || '—'})` }),
       ],
     }),
     new Paragraph({ children: [new TextRun({ text: ' ' })] }),
@@ -67,7 +67,7 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     protocolData.witnessesList.forEach((w, i) => {
       children.push(
         new Paragraph({
-          children: [new TextRun({ text: `${i + 1}. ${w.fio}, проживающий: ${w.address}` })],
+          children: [new TextRun({ text: `${i + 1}. ${w.fio}, проживающий: ${w.address}, тел.: ${w.phone || '—'}` })],
         }),
       );
     });
@@ -84,7 +84,7 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     protocolData.specialistsList.forEach((s, i) => {
       children.push(
         new Paragraph({
-          children: [new TextRun({ text: `${i + 1}. ${s.name} (${s.role})` })],
+          children: [new TextRun({ text: `${i + 1}. ${s.name} (${s.role}), тел.: ${s.phone || '—'}` })],
         }),
       );
     });
@@ -101,11 +101,22 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     protocolData.eyewitnessesList.forEach((w, i) => {
       children.push(
         new Paragraph({
-          children: [new TextRun({ text: `${i + 1}. ${w.fio}, проживающий: ${w.address}` })],
+          children: [new TextRun({ text: `${i + 1}. ${w.fio}, проживающий: ${w.address}, тел.: ${w.phone || '—'}` })],
         }),
       );
     });
     children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }));
+  }
+
+  // === ОКАЗАННАЯ ПОМОЩЬ ===
+  if (protocolData.helpProvided === 'Да') {
+    children.push(
+      new Paragraph({ children: [new TextRun({ text: 'Оказана помощь:', bold: true, underline: {} })] }),
+      new Paragraph({ children: [new TextRun({ text: `ФИО: ${protocolData.helpPersonName || '—'}` })] }),
+      new Paragraph({ children: [new TextRun({ text: `Телефон: ${protocolData.helpPersonPhone || '—'}` })] }),
+      new Paragraph({ children: [new TextRun({ text: `Адрес: ${protocolData.helpPersonAddress || '—'}` })] }),
+      new Paragraph({ children: [new TextRun({ text: ' ' })] }),
+    );
   }
 
   // === ХОД ОСМОТРА ===
@@ -121,10 +132,15 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     }),
   );
 
-  const foundTraces = protocolData.checklist?.filter(c => c.checked).map(c => c.name);
+  const foundTraces = protocolData.checklist?.filter(c => c.checked);
   if (foundTraces && foundTraces.length > 0) {
     foundTraces.forEach(trace => {
-      children.push(new Paragraph({ children: [new TextRun({ text: `• ${trace}` })] }));
+      children.push(new Paragraph({ 
+        children: [
+          new TextRun({ text: `• ${trace.name}`, bold: true }),
+          trace.comment ? new TextRun({ text: ` — ${trace.comment}` }) : new TextRun({ text: ' (детали не указаны)' }),
+        ] 
+      }));
     });
   } else {
     children.push(new Paragraph({ children: [new TextRun({ text: 'Следы не обнаружены.' })] }));
@@ -164,6 +180,19 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
   }
 
   children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }));
+
+  // === ВОПРОСЫ ЭКСПЕРТУ ===
+  if (protocolData.expertQuestions && protocolData.expertQuestions.length > 0) {
+    children.push(
+      new Paragraph({ children: [new TextRun({ text: 'Вопросы, поставленные перед экспертом:', bold: true, underline: {} })] }),
+    );
+    protocolData.expertQuestions.forEach((q, i) => {
+      if (q.text && q.text.trim()) {
+        children.push(new Paragraph({ children: [new TextRun({ text: `${i + 1}. ${q.text}` })] }));
+      }
+    });
+    children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }));
+  }
 
   // === ПОДПИСИ ===
   children.push(
@@ -207,7 +236,7 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
       try {
         const photoUri = photos[i].uri;
         const base64 = await FileSystem.readAsStringAsync(photoUri, {
-          encoding: 'base64',
+          encoding: 'base64', // ← Строковое значение вместо устаревшего Enum
         });
         
         children.push(
@@ -238,12 +267,11 @@ export async function exportProtocolToWord(protocolData, signatures = [], photos
     sections: [{ children }],
   });
 
-  // ✅ ИСПРАВЛЕНИЕ: Используем toBase64String вместо toBlob
   const base64String = await Packer.toBase64String(doc);
   const fileUri = `${FileSystem.documentDirectory}protocol_${protocolData.protocolNumber}.docx`;
   
   await FileSystem.writeAsStringAsync(fileUri, base64String, {
-    encoding: 'base64',
+    encoding: 'base64', // ← Строковое значение вместо устаревшего Enum
   });
 
   await Sharing.shareAsync(fileUri, {
