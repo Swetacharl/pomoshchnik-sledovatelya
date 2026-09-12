@@ -10,7 +10,6 @@ import { auth, db } from '../src/config/firebase';
 
 export default function ExpertReportScreen() {
   const [loading, setLoading] = useState(false);
-  const [caseNumber, setCaseNumber] = useState('');
   const [reportData, setReportData] = useState({
     number: '',
     date: new Date().toLocaleDateString('ru-RU'),
