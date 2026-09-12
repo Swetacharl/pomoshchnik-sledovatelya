@@ -10,8 +10,9 @@ import { Ionicons } from '@expo/vector-icons';
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Для основного пароля
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Для повторного пароля
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -75,6 +76,7 @@ export default function RegisterScreen() {
         style={styles.input} 
         placeholder="Введите ваше ФИО" 
         placeholderTextColor="#95a5a6"
+        color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
         value={fullName} 
         onChangeText={setFullName} 
       />
@@ -83,29 +85,44 @@ export default function RegisterScreen() {
         style={styles.input} 
         placeholder="Введите ваш email" 
         placeholderTextColor="#95a5a6"
+        color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
         value={email} 
         onChangeText={setEmail} 
         autoCapitalize="none" 
         keyboardType="email-address" 
       />
       
-      <TextInput 
-        style={styles.input} 
-        placeholder="Введите пароль (минимум 6 символов)" 
-        placeholderTextColor="#95a5a6"
-        value={password} 
-        onChangeText={setPassword} 
-        secureTextEntry 
-      />
+      {/* ПОЛЕ ПАРОЛЯ С КНОПКОЙ "ГЛАЗ" */}
+      <View style={styles.passwordContainer}>
+        <TextInput 
+          style={styles.input} 
+          placeholder="Введите пароль (мин. 6 символов)" 
+          placeholderTextColor="#95a5a6"
+          color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
+          value={password} 
+          onChangeText={setPassword} 
+          secureTextEntry={!showPassword} 
+        />
+        <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#4a5568" />
+        </TouchableOpacity>
+      </View>
       
-      <TextInput 
-        style={styles.input} 
-        placeholder="Повторите пароль" 
-        placeholderTextColor="#95a5a6"
-        value={confirmPassword} 
-        onChangeText={setConfirmPassword} 
-        secureTextEntry 
-      />
+      {/* ПОЛЕ ПОВТОРА ПАРОЛЯ С КНОПКОЙ "ГЛАЗ" */}
+      <View style={styles.passwordContainer}>
+        <TextInput 
+          style={styles.input} 
+          placeholder="Повторите пароль" 
+          placeholderTextColor="#95a5a6"
+          color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
+          value={confirmPassword} 
+          onChangeText={setConfirmPassword} 
+          secureTextEntry={!showConfirmPassword} 
+        />
+        <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color="#4a5568" />
+        </TouchableOpacity>
+      </View>
       
       <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Зарегистрироваться</Text>}
@@ -121,7 +138,26 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, justifyContent: 'center', backgroundColor: '#f0f4f8' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#2c3e50', textAlign: 'center', marginBottom: 20 },
-  input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: '#bdc3c7', fontSize: 16 },
+  input: { 
+    backgroundColor: '#fff', 
+    padding: 15, 
+    borderRadius: 10, 
+    marginBottom: 12, 
+    borderWidth: 1, 
+    borderColor: '#bdc3c7', 
+    fontSize: 16,
+    color: '#2c3e50' // <-- ГАРАНТИРУЕМ, ЧТО ВВЕДЕННЫЙ ТЕКСТ ВСЕГДА БУДЕТ ТЕМНЫМ И ВИДНЫМ
+  },
+  passwordContainer: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
+    padding: 5,
+  },
   button: { backgroundColor: '#27ae60', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 5 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { color: '#3498db', textAlign: 'center', marginTop: 20, fontSize: 14 }
