@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { auth, db } from '../src/config/firebase';
+import { auth, db } from '../../src/config/firebase';
 
 export default function ArchiveScreen() {
   const [protocols, setProtocols] = useState([]);
