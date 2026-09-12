@@ -10,6 +10,7 @@ import { auth, db } from '../src/config/firebase';
 
 export default function ExpertReportScreen() {
   const [loading, setLoading] = useState(false);
+  const [caseNumber, setCaseNumber] = useState('');
   const [reportData, setReportData] = useState({
     number: '',
     date: new Date().toLocaleDateString('ru-RU'),
@@ -27,6 +28,9 @@ export default function ExpertReportScreen() {
 
   const handleExport = async () => {
     // Проверка обязательных полей
+    if (!reportData.caseNumber.trim()) {
+      return Alert.alert('Ошибка', 'Обязательно укажите номер уголовного дела для приобщения заключения!');
+   }
     if (!reportData.number || !reportData.caseNumber) {
       return Alert.alert('Ошибка', 'Заполните номер заключения и номер уголовного дела');
     }
@@ -34,6 +38,10 @@ export default function ExpertReportScreen() {
     setLoading(true);
 
     const children = [
+      new Paragraph({
+         alignment: AlignmentType.CENTER,
+         children: [new TextRun({ text: `По уголовному делу № ${reportData.caseNumber}`, bold: true, size: 26 })],
+      }),
       new Paragraph({
         alignment: AlignmentType.CENTER,
         children: [new TextRun({ text: 'ЗАКЛЮЧЕНИЕ ЭКСПЕРТА', bold: true, size: 32 })],
