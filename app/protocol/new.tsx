@@ -16,6 +16,8 @@ export default function NewProtocolScreen() {
   const [callerName, setCallerName] = useState('');
   const [dateTime, setDateTime] = useState(new Date().toLocaleString('ru-RU'));
   const [address, setAddress] = useState('');
+  const [arrivedPersonnel, setArrivedPersonnel] = useState('');
+  const [crimeArticle, setCrimeArticle] = useState('');
   
   // 2. Процедурные
   const [helpProvided, setHelpProvided] = useState('');
@@ -66,6 +68,10 @@ export default function NewProtocolScreen() {
 
   // --- Логика списков ---
   const toggleCheck = (id) => setChecklist(checklist.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
+  const toggleCheck = (id) => setChecklist(checklist.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
+  const updateChecklistComment = (id, text) => {
+  setChecklist(checklist.map(i => i.id === id ? { ...i, comment: text } : i));
+};
   
   const addEyewitness = () => setEyewitnessesList([...eyewitnessesList, { id: Date.now(), fio: '', address: '' }]);
   const removeEyewitness = (id) => setEyewitnessesList(eyewitnessesList.filter(w => w.id !== id));
@@ -184,13 +190,15 @@ const handleExport = async () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}><Text style={styles.backBtn}>⬅ Назад</Text></TouchableOpacity>
-        <Text style={styles.headerTitle}>Новый осмотр</Text>
-      </View>
+        <TouchableOpacity onPress={() => router.replace('/(tabs)/home')}>
+         <Text style={styles.backBtn}>⬅ Отмена</Text>
+        </TouchableOpacity>
 
       <ScrollView style={styles.form} contentContainerStyle={{paddingBottom: 40}}>
         
         <Section title="📞 Общие сведения">
+           <Field label="Квалификация преступления (статья)" value={crimeArticle} onChange={setCrimeArticle} placeholder="Например: п. 'а' ч. 2 ст. 158 УК РФ (Кража)" />
+           <Field label="Кто прибыл на место" value={arrivedPersonnel} onChange={setArrivedPersonnel
           <Field label="Причина вызова" value={reasonForCall} onChange={setReasonForCall} placeholder="Опишите причину: поступило сообщение о краже из квартиры, обнаружении тела и т.д." />
           <Field label="Кто вызвал" value={callerName} onChange={setCallerName} placeholder="ФИО заявителя полностью и контактный телефон" />
           <Field label="Дата и время" value={dateTime} onChange={setDateTime} />
@@ -271,15 +279,26 @@ const handleExport = async () => {
         </Section>
 
         <Section title="🔍 Обнаруженные следы">
-          {checklist.map(item => (
-            <View key={item.id} style={styles.checkRow}>
-              <TouchableOpacity style={[styles.checkBtn, item.checked && styles.checkBtnActive]} onPress={() => toggleCheck(item.id)}>
-                <Text style={[styles.checkText, item.checked && styles.checkTextActive]}>{item.checked ? '✅' : '⬜'}</Text>
-              </TouchableOpacity>
-              <Text style={styles.checkLabel}>{item.name}</Text>
-            </View>
-          ))}
-        </Section>
+  {checklist.map(item => (
+    <View key={item.id} style={styles.checkRowContainer}>
+      <TouchableOpacity style={[styles.checkBtn, item.checked && styles.checkBtnActive]} onPress={() => toggleCheck(item.id)}>
+        <Text style={[styles.checkText, item.checked && styles.checkTextActive]}>{item.checked ? '✅' : '⬜'}</Text>
+      </TouchableOpacity>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.checkLabel}>{item.name}</Text>
+        {item.checked && (
+          <TextInput
+            style={styles.miniInput}
+            placeholder="Детали: (напр. след обуви 43 размера, кровь алая, марка авто...)"
+            placeholderTextColor="#4a5568"
+            value={item.comment}
+            onChangeText={(text) => updateChecklistComment(item.id, text)}
+          />
+        )}
+      </View>
+    </View>
+  ))}
+</Section>
 
         <Section title="📦 Изъято">
           <Field label="Что изъято?" value={seizedItems} onChange={setSeizedItems} multiline placeholder="Перечислите все изъятые предметы: лом металлический длиной 50 см, отмычка, следы обуви размер 42 и т.д." />
@@ -304,6 +323,8 @@ const handleExport = async () => {
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={loading}>
             {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>💾 Сохранить</Text>}
+            Alert.alert('✅ Успех', 'Протокол сохранён в архив!');
+router.replace('/(tabs)/archive'); // <-- Перенаправляет в архив, ломая цикл "назад"
           </TouchableOpacity>
           <TouchableOpacity style={styles.exportBtn} onPress={handleExport}>
             <Text style={styles.exportText}>📤 Экспорт</Text>
@@ -348,6 +369,7 @@ const styles = StyleSheet.create({
   checkBtnActive: { backgroundColor: '#e8f5e9', borderColor: '#27ae60' },
   checkText: { fontSize: 18 },
   checkTextActive: { color: '#27ae60' },
+  checkRowContainer: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   buttonRow: { flexDirection: 'row', gap: 10, padding: 15 },
   saveBtn: { flex: 1, backgroundColor: '#2980b9', padding: 14, borderRadius: 10, alignItems: 'center' },
   saveText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
