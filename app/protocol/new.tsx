@@ -1,4 +1,4 @@
-// app/protocol/new.tsx (полный код с улучшенными подсказками)
+// app/protocol/new.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, StyleSheet, Share } from 'react-native';
 import { router } from 'expo-router';
@@ -68,10 +68,10 @@ export default function NewProtocolScreen() {
 
   // --- Логика списков ---
   const toggleCheck = (id) => setChecklist(checklist.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
-  const toggleCheck = (id) => setChecklist(checklist.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
+  
   const updateChecklistComment = (id, text) => {
-  setChecklist(checklist.map(i => i.id === id ? { ...i, comment: text } : i));
-};
+    setChecklist(checklist.map(i => i.id === id ? { ...i, comment: text } : i));
+  };
   
   const addEyewitness = () => setEyewitnessesList([...eyewitnessesList, { id: Date.now(), fio: '', address: '' }]);
   const removeEyewitness = (id) => setEyewitnessesList(eyewitnessesList.filter(w => w.id !== id));
@@ -132,6 +132,7 @@ export default function NewProtocolScreen() {
         authorName: auth.currentUser.email,
         protocolNumber: generateNumber(),
         reasonForCall, callerName, dateTime, address,
+        arrivedPersonnel, crimeArticle, // <-- Добавлены новые поля
         helpProvided, isGuarded, strangersRemoved, witnessesWarned,
         witnessesInProcedural, eyewitnessesInProcedural,
         eyewitnessInterview, eyewitnessesList, eyewitnessTestimony,
@@ -144,8 +145,11 @@ export default function NewProtocolScreen() {
       };
 
       await addDoc(collection(db, 'protocols'), protocolData);
+      
+      // ✅ ПРАВИЛЬНОЕ МЕСТО ДЛЯ ALERT И НАВИГАЦИИ
       Alert.alert('✅ Успех', 'Протокол сохранён в архив!');
-      router.back();
+      router.replace('/(tabs)/archive'); 
+      
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось сохранить: ' + error.message);
     } finally {
@@ -154,32 +158,32 @@ export default function NewProtocolScreen() {
   };
 
   // Экспорт
-const handleExport = async () => {
-  try {
-    await exportProtocolToWord(
-      {
-        protocolNumber: generateNumber(),
-        dateTime,
-        address,
-        reasonForCall,
-        callerName,
-        witnessesList,
-        eyewitnessesList,
-        specialistsList,
-        checklist,
-        seizedItems,
-        technicalMeans,
-        videoRecording,
-        videoStartTime,
-        videoEndTime,
-      },
-      [], // подписи
-      filesList.filter(f => f.type.startsWith('image')) // только фото
-    );
-  } catch (e) {
-    Alert.alert('Ошибка', 'Не удалось экспортировать: ' + e.message);
-  }
-};
+  const handleExport = async () => {
+    try {
+      await exportProtocolToWord(
+        {
+          protocolNumber: generateNumber(),
+          dateTime,
+          address,
+          reasonForCall,
+          callerName,
+          witnessesList,
+          eyewitnessesList,
+          specialistsList,
+          checklist,
+          seizedItems,
+          technicalMeans,
+          videoRecording,
+          videoStartTime,
+          videoEndTime,
+        },
+        [], 
+        filesList.filter(f => f.type.startsWith('image')) 
+      );
+    } catch (e) {
+      Alert.alert('Ошибка', 'Не удалось экспортировать: ' + e.message);
+    }
+  };
 
   // Эффект: если в процедурных нажали "Да" → открываем соответствующий раздел
   React.useEffect(() => {
@@ -191,14 +195,16 @@ const handleExport = async () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.replace('/(tabs)/home')}>
-         <Text style={styles.backBtn}>⬅ Отмена</Text>
+          <Text style={styles.backBtn}>⬅ Отмена</Text>
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>Новый осмотр</Text>
+      </View>
 
       <ScrollView style={styles.form} contentContainerStyle={{paddingBottom: 40}}>
         
         <Section title="📞 Общие сведения">
-           <Field label="Квалификация преступления (статья)" value={crimeArticle} onChange={setCrimeArticle} placeholder="Например: п. 'а' ч. 2 ст. 158 УК РФ (Кража)" />
-           <Field label="Кто прибыл на место" value={arrivedPersonnel} onChange={setArrivedPersonnel
+          <Field label="Квалификация преступления (статья)" value={crimeArticle} onChange={setCrimeArticle} placeholder="Например: п. 'а' ч. 2 ст. 158 УК РФ (Кража)" />
+          <Field label="Кто прибыл на место" value={arrivedPersonnel} onChange={setArrivedPersonnel} placeholder="Следователь Иванов И.И., оперуполномоченный Петров П.П." />
           <Field label="Причина вызова" value={reasonForCall} onChange={setReasonForCall} placeholder="Опишите причину: поступило сообщение о краже из квартиры, обнаружении тела и т.д." />
           <Field label="Кто вызвал" value={callerName} onChange={setCallerName} placeholder="ФИО заявителя полностью и контактный телефон" />
           <Field label="Дата и время" value={dateTime} onChange={setDateTime} />
@@ -279,26 +285,26 @@ const handleExport = async () => {
         </Section>
 
         <Section title="🔍 Обнаруженные следы">
-  {checklist.map(item => (
-    <View key={item.id} style={styles.checkRowContainer}>
-      <TouchableOpacity style={[styles.checkBtn, item.checked && styles.checkBtnActive]} onPress={() => toggleCheck(item.id)}>
-        <Text style={[styles.checkText, item.checked && styles.checkTextActive]}>{item.checked ? '✅' : '⬜'}</Text>
-      </TouchableOpacity>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.checkLabel}>{item.name}</Text>
-        {item.checked && (
-          <TextInput
-            style={styles.miniInput}
-            placeholder="Детали: (напр. след обуви 43 размера, кровь алая, марка авто...)"
-            placeholderTextColor="#4a5568"
-            value={item.comment}
-            onChangeText={(text) => updateChecklistComment(item.id, text)}
-          />
-        )}
-      </View>
-    </View>
-  ))}
-</Section>
+          {checklist.map(item => (
+            <View key={item.id} style={styles.checkRowContainer}>
+              <TouchableOpacity style={[styles.checkBtn, item.checked && styles.checkBtnActive]} onPress={() => toggleCheck(item.id)}>
+                <Text style={[styles.checkText, item.checked && styles.checkTextActive]}>{item.checked ? '✅' : '⬜'}</Text>
+              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.checkLabel}>{item.name}</Text>
+                {item.checked && (
+                  <TextInput
+                    style={styles.miniInput}
+                    placeholder="Детали: (напр. след обуви 43 размера, кровь алая, марка авто...)"
+                    placeholderTextColor="#4a5568"
+                    value={item.comment}
+                    onChangeText={(text) => updateChecklistComment(item.id, text)}
+                  />
+                )}
+              </View>
+            </View>
+          ))}
+        </Section>
 
         <Section title="📦 Изъято">
           <Field label="Что изъято?" value={seizedItems} onChange={setSeizedItems} multiline placeholder="Перечислите все изъятые предметы: лом металлический длиной 50 см, отмычка, следы обуви размер 42 и т.д." />
@@ -323,8 +329,6 @@ const handleExport = async () => {
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={loading}>
             {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>💾 Сохранить</Text>}
-            Alert.alert('✅ Успех', 'Протокол сохранён в архив!');
-router.replace('/(tabs)/archive'); // <-- Перенаправляет в архив, ломая цикл "назад"
           </TouchableOpacity>
           <TouchableOpacity style={styles.exportBtn} onPress={handleExport}>
             <Text style={styles.exportText}>📤 Экспорт</Text>
@@ -364,11 +368,11 @@ const styles = StyleSheet.create({
   delText: { fontSize: 16 },
   addBtn: { marginTop: 5, padding: 10, backgroundColor: '#ecf0f1', borderRadius: 6, alignItems: 'center' },
   addText: { color: '#2c3e50', fontWeight: 'bold', fontSize: 13 },
-  checkRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   checkBtn: { width: 32, height: 32, borderRadius: 6, borderWidth: 1, borderColor: '#bdc3c7', justifyContent: 'center', alignItems: 'center', marginRight: 10 },
   checkBtnActive: { backgroundColor: '#e8f5e9', borderColor: '#27ae60' },
   checkText: { fontSize: 18 },
   checkTextActive: { color: '#27ae60' },
+  checkLabel: { fontSize: 14, color: '#34495e', marginBottom: 4 },
   checkRowContainer: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   buttonRow: { flexDirection: 'row', gap: 10, padding: 15 },
   saveBtn: { flex: 1, backgroundColor: '#2980b9', padding: 14, borderRadius: 10, alignItems: 'center' },
