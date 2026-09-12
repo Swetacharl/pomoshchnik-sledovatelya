@@ -6,7 +6,7 @@ import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx';
 import * as FileSystem from 'expo-file-system/legacy';  // ← legacy импорт
 import * as Sharing from 'expo-sharing';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '../../src/config/firebase';
+import { auth, db } from '../src/config/firebase';
 
 export default function ExpertReportScreen() {
   const [reportData, setReportData] = useState({
