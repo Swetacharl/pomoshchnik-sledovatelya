@@ -4,10 +4,12 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../src/config/firebase';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // <-- Состояние для показа пароля
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -49,20 +51,31 @@ export default function LoginScreen() {
         style={styles.input} 
         placeholder="Введите ваш email" 
         placeholderTextColor="#95a5a6"
+        color="#2c3e50" // <-- ЯВНЫЙ ТЕМНЫЙ ЦВЕТ ТЕКСТА
         value={email} 
         onChangeText={setEmail} 
         autoCapitalize="none" 
         keyboardType="email-address" 
       />
       
-      <TextInput 
-        style={styles.input} 
-        placeholder="Введите пароль" 
-        placeholderTextColor="#95a5a6"
-        value={password} 
-        onChangeText={setPassword} 
-        secureTextEntry 
-      />
+      {/* ОБЕРТКА ДЛЯ ПОЛЯ ПАРОЛЯ С КНОПКОЙ "ГЛАЗ" */}
+      <View style={styles.passwordContainer}>
+        <TextInput 
+          style={styles.input} 
+          placeholder="Введите пароль" 
+          placeholderTextColor="#95a5a6"
+          color="#2c3e50" // <-- ЯВНЫЙ ТЕМНЫЙ ЦВЕТ ТЕКСТА
+          secureTextEntry={!showPassword} // <-- Переключаем видимость
+          value={password} 
+          onChangeText={setPassword} 
+        />
+        <TouchableOpacity 
+          style={styles.eyeIcon} 
+          onPress={() => setShowPassword(!showPassword)}
+        >
+          <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#4a5568" />
+        </TouchableOpacity>
+      </View>
       
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Войти</Text>}
@@ -78,7 +91,26 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, justifyContent: 'center', backgroundColor: '#f0f4f8' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#2c3e50', textAlign: 'center', marginBottom: 30 },
-  input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#bdc3c7', fontSize: 16 },
+  input: { 
+    backgroundColor: '#fff', 
+    padding: 15, 
+    borderRadius: 10, 
+    marginBottom: 15, 
+    borderWidth: 1, 
+    borderColor: '#bdc3c7', 
+    fontSize: 16,
+    color: '#2c3e50' // <-- ГАРАНТИРУЕМ, ЧТО ВВЕДЕННЫЙ ТЕКСТ ВСЕГДА БУДЕТ ТЕМНЫМ
+  },
+  passwordContainer: {
+    position: 'relative',
+    marginBottom: 15,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
+    padding: 5,
+  },
   button: { backgroundColor: '#2980b9', padding: 15, borderRadius: 10, alignItems: 'center' },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { color: '#3498db', textAlign: 'center', marginTop: 20, fontSize: 14 }
