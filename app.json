@@ -15,14 +15,6 @@
     },
     "ios": {
       "supportsTablet": true
-      "bundleIdentifier": "159bce49-5075-4b8c-b736-f429b1e86e6d", // Замените на свой уникальный ID
-      "infoPlist": {
-       "NSCameraUsageDescription": "Приложению необходим доступ к камере для фотографирования места происшествия.",
-       "NSPhotoLibraryUsageDescription": "Приложению необходим доступ к фотобиблиотеке для прикрепления фотографий к протоколу.",
-       "NSPhotoLibraryAddUsageDescription": "Приложению необходимо разрешение на сохранение экспортированных документов и фото.",
-       "NSLocationWhenInUseUsageDescription": "Приложению нужен доступ к геолокации для фиксации адреса осмотра."
-    }
-  }
     },
     "android": {
       "adaptiveIcon": {
