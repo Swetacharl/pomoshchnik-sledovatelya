@@ -5,15 +5,6 @@ import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../src/config/firebase';
-  import { KeyboardAvoidingView, Platform } from 'react-native';
-  
-  // Внутри компонента:
-  <KeyboardAvoidingView 
-    style={{ flex: 1 }} 
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-  >
-     <ScrollView> ... </ScrollView>
-  </KeyboardAvoidingView>
 
 export default function HomeScreen() {
   const [userRole, setUserRole] = useState(null); // 'investigator' или 'expert'
