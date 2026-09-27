@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../src/config/firebase';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,14 +10,17 @@ import { Ionicons } from '@expo/vector-icons';
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Для основного пароля
+  const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Для повторного пароля
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fullName, setFullName] = useState('');
+  
+  // ✅ 1. ДОБАВЛЕНО: Состояние для выбора роли (по умолчанию следователь)
+  const [role, setRole] = useState('investigator'); 
+  
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    // 1. Валидация полей
     if (!fullName || !email || !password) {
       Alert.alert('Ошибка', 'Заполните все поля');
       return;
@@ -33,19 +36,18 @@ export default function RegisterScreen() {
     
     setLoading(true);
     try {
-      // 2. Создаём пользователя в Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // 3. Сохраняем профиль в Firestore
+      // ✅ 2. ИЗМЕНЕНО: Добавлено поле role при сохранении в Firestore
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
         fullName: fullName,
-        createdAt: new Date().toISOString()
+        role: role, // <-- Сохраняем выбранную роль
+        createdAt: serverTimestamp()
       });
       
-      // ✅ 4. Успех: принудительно переходим на главное меню
       Alert.alert('Успех', 'Аккаунт создан!', [
         { 
           text: 'OK', 
@@ -76,7 +78,7 @@ export default function RegisterScreen() {
         style={styles.input} 
         placeholder="Введите ваше ФИО" 
         placeholderTextColor="#95a5a6"
-        color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
+        color="#2c3e50"
         value={fullName} 
         onChangeText={setFullName} 
       />
@@ -85,20 +87,19 @@ export default function RegisterScreen() {
         style={styles.input} 
         placeholder="Введите ваш email" 
         placeholderTextColor="#95a5a6"
-        color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
+        color="#2c3e50"
         value={email} 
         onChangeText={setEmail} 
         autoCapitalize="none" 
         keyboardType="email-address" 
       />
       
-      {/* ПОЛЕ ПАРОЛЯ С КНОПКОЙ "ГЛАЗ" */}
       <View style={styles.passwordContainer}>
         <TextInput 
           style={styles.input} 
           placeholder="Введите пароль (мин. 6 символов)" 
           placeholderTextColor="#95a5a6"
-          color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
+          color="#2c3e50"
           value={password} 
           onChangeText={setPassword} 
           secureTextEntry={!showPassword} 
@@ -108,13 +109,12 @@ export default function RegisterScreen() {
         </TouchableOpacity>
       </View>
       
-      {/* ПОЛЕ ПОВТОРА ПАРОЛЯ С КНОПКОЙ "ГЛАЗ" */}
       <View style={styles.passwordContainer}>
         <TextInput 
           style={styles.input} 
           placeholder="Повторите пароль" 
           placeholderTextColor="#95a5a6"
-          color="#2c3e50" // <-- ЯВНЫЙ ЦВЕТ ТЕКСТА
+          color="#2c3e50"
           value={confirmPassword} 
           onChangeText={setConfirmPassword} 
           secureTextEntry={!showConfirmPassword} 
@@ -122,6 +122,25 @@ export default function RegisterScreen() {
         <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
           <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color="#4a5568" />
         </TouchableOpacity>
+      </View>
+
+      {/* ✅ 3. ДОБАВЛЕНО: Блок выбора должности */}
+      <View style={styles.roleContainer}>
+        <Text style={styles.roleLabel}>Выберите вашу должность:</Text>
+        <View style={styles.roleButtons}>
+          <TouchableOpacity 
+            style={[styles.roleBtn, role === 'investigator' && styles.roleBtnActive]} 
+            onPress={() => setRole('investigator')}
+          >
+            <Text style={[styles.roleText, role === 'investigator' && styles.roleTextActive]}>👮 Следователь</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.roleBtn, role === 'expert' && styles.roleBtnActive]} 
+            onPress={() => setRole('expert')}
+          >
+            <Text style={[styles.roleText, role === 'expert' && styles.roleTextActive]}>🔬 Эксперт</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       
       <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
@@ -146,7 +165,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, 
     borderColor: '#bdc3c7', 
     fontSize: 16,
-    color: '#2c3e50' // <-- ГАРАНТИРУЕМ, ЧТО ВВЕДЕННЫЙ ТЕКСТ ВСЕГДА БУДЕТ ТЕМНЫМ И ВИДНЫМ
+    color: '#2c3e50'
   },
   passwordContainer: {
     position: 'relative',
@@ -158,6 +177,15 @@ const styles = StyleSheet.create({
     top: 15,
     padding: 5,
   },
+  // ✅ 4. ДОБАВЛЕНО: Стили для блока выбора роли
+  roleContainer: { marginBottom: 20 },
+  roleLabel: { fontSize: 14, color: '#7f8c8d', marginBottom: 8, fontWeight: '600' },
+  roleButtons: { flexDirection: 'row', gap: 10 },
+  roleBtn: { flex: 1, padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#bdc3c7', alignItems: 'center', backgroundColor: '#fff' },
+  roleBtnActive: { backgroundColor: '#2980b9', borderColor: '#2980b9' },
+  roleText: { fontSize: 14, color: '#7f8c8d', fontWeight: '600' },
+  roleTextActive: { color: '#fff' },
+  
   button: { backgroundColor: '#27ae60', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 5 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { color: '#3498db', textAlign: 'center', marginTop: 20, fontSize: 14 }
