@@ -30,7 +30,7 @@ export default function RegisterScreen() {
       return;
     }
     if (password.length < 6) {
-      Alert.alert('Ошибка', 'Пароль должен содержать минимум 6 символов');
+      Alert.alert('Ошибка', 'Пароль должен содержать не более 6 символов');
       return;
     }
     
@@ -97,7 +97,7 @@ export default function RegisterScreen() {
       <View style={styles.passwordContainer}>
         <TextInput 
           style={styles.input} 
-          placeholder="Введите пароль (мин. 6 символов)" 
+          placeholder="Введите пароль (макс. 6 символов)" 
           placeholderTextColor="#95a5a6"
           color="#2c3e50"
           value={password} 
