@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true
-      "bundleIdentifier": "com.yourcompany.crimesceneapp", // Замените на свой уникальный ID
+      "bundleIdentifier": "159bce49-5075-4b8c-b736-f429b1e86e6d", // Замените на свой уникальный ID
       "infoPlist": {
        "NSCameraUsageDescription": "Приложению необходим доступ к камере для фотографирования места происшествия.",
        "NSPhotoLibraryUsageDescription": "Приложению необходим доступ к фотобиблиотеке для прикрепления фотографий к протоколу.",
