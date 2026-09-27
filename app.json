@@ -15,6 +15,14 @@
     },
     "ios": {
       "supportsTablet": true
+      "bundleIdentifier": "com.yourcompany.crimesceneapp", // Замените на свой уникальный ID
+      "infoPlist": {
+       "NSCameraUsageDescription": "Приложению необходим доступ к камере для фотографирования места происшествия.",
+       "NSPhotoLibraryUsageDescription": "Приложению необходим доступ к фотобиблиотеке для прикрепления фотографий к протоколу.",
+       "NSPhotoLibraryAddUsageDescription": "Приложению необходимо разрешение на сохранение экспортированных документов и фото.",
+       "NSLocationWhenInUseUsageDescription": "Приложению нужен доступ к геолокации для фиксации адреса осмотра."
+    }
+  }
     },
     "android": {
       "adaptiveIcon": {
